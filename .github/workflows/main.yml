@@ -92,7 +92,8 @@ jobs:
             
             cd ~/app 
             git pull origin main
-            npm install --production
+            npm install --omit=dev
+            npm install node-pg-migrate@8.0.3
             npm run migrate
             
             pm2 delete forum-api || true
