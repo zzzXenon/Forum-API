@@ -1,0 +1,90 @@
+name: CI/CD Forum API
+
+on:
+  pull_request:
+    branches: [main, master]
+  push:
+    branches: [main, master]
+
+jobs:
+  test:
+    name: Continuous Integration (Test)
+    runs-on: ubuntu-latest
+    
+    # Kriteria 1: PostgreSQL Service Container for Integration Tests
+    services:
+      postgres:
+        image: postgres:13.1-alpine
+        env:
+          POSTGRES_USER: runner
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: forumapi_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js 18.20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.20.8'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Set ENV variables for test
+        run: |
+          echo "PGHOST_TEST=localhost" >> $GITHUB_ENV
+          echo "PGUSER_TEST=runner" >> $GITHUB_ENV
+          echo "PGPASSWORD_TEST=password" >> $GITHUB_ENV
+          echo "PGDATABASE_TEST=forumapi_test" >> $GITHUB_ENV
+          echo "PGPORT_TEST=5432" >> $GITHUB_ENV
+          echo "ACCESS_TOKEN_KEY=${{ secrets.ACCESS_TOKEN_KEY }}" >> $GITHUB_ENV
+          echo "REFRESH_TOKEN_KEY=${{ secrets.REFRESH_TOKEN_KEY }}" >> $GITHUB_ENV
+
+      - name: Run Database Migration
+        run: npm run migrate:test
+
+      # Kriteria 1: Run All Tests
+      - name: Run All Tests
+        run: npm test
+
+  deploy:
+    name: Continuous Deployment (Deploy)
+    runs-on: ubuntu-latest
+    needs: test
+    
+    # Kriteria 2: Hanya deploy jika CI (test) berhasil dan event-nya adalah push
+    if: github.event_name == 'push' && success()
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy to Server via SSH (Kriteria 2)
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            export PGUSER=developer 
+            export PGDATABASE=forumapi 
+            export PGPASSWORD=supersecretpassword
+            export HOST=localhost
+            export PORT=5000
+            export ACCESS_TOKEN_KEY=${{ secrets.ACCESS_TOKEN_KEY }}
+            export REFRESH_TOKEN_KEY=${{ secrets.REFRESH_TOKEN_KEY }}
+            
+            cd ~/app 
+            git pull origin main
+            npm install --production
+            npm run migrate
+            
+            pm2 delete forum-api || true
+            pm2 start ecosystem.config.js 
+            pm2 save

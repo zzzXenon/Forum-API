@@ -5,6 +5,7 @@ const DomainErrorTranslator = require("../../Commons/exceptions/DomainErrorTrans
 const users = require("../../Interfaces/http/api/users");
 const authentications = require("../../Interfaces/http/api/authentications");
 const threads = require("../../Interfaces/http/api/threads");
+const info = require("../../Interfaces/http/api/info");
 
 const createServer = async (container) => {
   const server = Hapi.server({
@@ -12,14 +13,13 @@ const createServer = async (container) => {
     port: process.env.PORT,
   });
 
-  // register external plugins
   await server.register([
     {
       plugin: Jwt,
     },
   ]);
 
-  // define authentication strategy
+  // authentication
   server.auth.strategy("forum_jwt", "jwt", {
     keys: process.env.ACCESS_TOKEN_KEY,
     verify: {
@@ -46,13 +46,15 @@ const createServer = async (container) => {
       options: { container },
     },
     {
-      plugin: threads, // Register the new plugin
+      plugin: threads,
       options: { container },
+    },
+    {
+      plugin: info,
     },
   ]);
 
   server.ext("onPreResponse", (request, h) => {
-    // ... (logic remains the same)
     const { response } = request;
     if (response instanceof Error) {
       const translatedError = DomainErrorTranslator.translate(response);
