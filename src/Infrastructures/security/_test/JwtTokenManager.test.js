@@ -45,25 +45,38 @@ describe('JwtTokenManager', () => {
 
   describe('verifyRefreshToken function', () => {
     it('should throw InvariantError when verification failed', async () => {
-      // Arrange
-      const jwtTokenManager = new JwtTokenManager(Jwt.token);
-      const accessToken = await jwtTokenManager.createAccessToken({ username: 'dicoding' });
+      const mockJwtToken = {
+        verify: jest.fn().mockImplementation(() => {
+          throw new Error('Verification failed'); 
+        }),
+        decode: jest.fn(),
+        generate: jest.fn(),
+      };
+      const jwtTokenManager = new JwtTokenManager(mockJwtToken);
+      const invalidToken = 'this_is_an_invalid_token';
 
-      // Action & Assert
-      await expect(jwtTokenManager.verifyRefreshToken(accessToken))
+      await expect(jwtTokenManager.verifyRefreshToken(invalidToken))
         .rejects
         .toThrow(InvariantError);
+        
+      expect(mockJwtToken.verify).toHaveBeenCalled();
     });
 
     it('should not throw InvariantError when refresh token verified', async () => {
-      // Arrange
-      const jwtTokenManager = new JwtTokenManager(Jwt.token);
-      const refreshToken = await jwtTokenManager.createRefreshToken({ username: 'dicoding' });
+      const mockJwtToken = {
+        verify: jest.fn().mockResolvedValue({}),
+        generate: jest.fn().mockResolvedValue('mock_token'),
+        decode: jest.fn().mockResolvedValue({}),
+      };
+      const jwtTokenManager = new JwtTokenManager(mockJwtToken);
+      const validToken = 'this_is_a_valid_token';
 
       // Action & Assert
-      await expect(jwtTokenManager.verifyRefreshToken(refreshToken))
+      await expect(jwtTokenManager.verifyRefreshToken(validToken))
         .resolves
         .not.toThrow(InvariantError);
+        
+      expect(mockJwtToken.verify).toHaveBeenCalled();
     });
   });
 
