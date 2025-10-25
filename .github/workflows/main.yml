@@ -59,6 +59,12 @@ jobs:
           NODE_OPTIONS: "--experimental-modules" 
           ACCESS_TOKEN_AGE: 3000
 
+      - name: FAIL CHECK
+        # if: github.event_name == 'pull_request'
+        run: |
+          echo "Simulate failed unit test."
+          exit 1
+
   deploy:
     name: Continuous Deployment (Deploy)
     runs-on: ubuntu-latest
