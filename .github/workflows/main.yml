@@ -55,6 +55,9 @@ jobs:
       # Kriteria 1: Run All Tests
       - name: Run All Tests
         run: npm test
+        env:
+          NODE_OPTIONS: "--experimental-modules" 
+          ACCCESS_TOKEN_AGE: 3000
 
   deploy:
     name: Continuous Deployment (Deploy)
