@@ -69,7 +69,7 @@ jobs:
           node-version: '20.x'
           cache: 'npm'
 
-      - name: Install dependencies (minimal)
+      - name: Install dependencies
         run: npm install
 
       - name: Run Forced Fail Test
