@@ -1,5 +1,5 @@
-const createServer = require('../../../../Infrastructures/http/createServer');
-const container = require('../../../../Infrastructures/container');
+const createServer = require('../../..//Infrastructures/http/createServer');
+const container = require('../../../Infrastructures/container');
 
 describe('GET /hello endpoint', () => {
   it('should respond with 200 and "Hello, stranger" when no name is provided', async () => {
