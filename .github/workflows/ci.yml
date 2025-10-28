@@ -6,7 +6,7 @@ on:
 
 jobs:
   ci-success:
-    name: CI success
+    name: CI
     runs-on: ubuntu-latest
     
     services:
@@ -54,21 +54,3 @@ jobs:
         env:
           NODE_OPTIONS: "--experimental-modules" 
           ACCESS_TOKEN_AGE: 3000
-
-  ci-fail:
-    name: CI fail
-    runs-on: ubuntu-latest
-    
-    steps:
-      - uses: actions/checkout@v4
-      - name: Use Node.js 20.x
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20.x'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Run Forced Fail Test
-        run: npx jest tests/ci-fail-test.test.js
