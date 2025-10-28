@@ -39,4 +39,4 @@ jobs:
             
             pm2 delete forum-api || true
             pm2 start ecosystem.config.js 
-            pm2 save`
+            pm2 save
