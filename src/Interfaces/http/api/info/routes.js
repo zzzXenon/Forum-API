@@ -4,7 +4,7 @@ const routes = [
     path: '/info',
     handler: () => ({
       status: 'success',
-      message: 'Forum API is running. Ready for deployment!',
+      message: 'Forum API is running. Ready for deployment',
     }),
   },
 ];

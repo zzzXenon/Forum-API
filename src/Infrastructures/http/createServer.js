@@ -50,6 +50,9 @@ const createServer = async (container) => {
       options: { container },
     },
     {
+      plugin: hello,
+    },
+    {
       plugin: info,
     },
   ]);
