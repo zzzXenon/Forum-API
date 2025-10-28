@@ -1,7 +1,7 @@
 {
-  "name": "proyek-1",
-  "version": "1.0.0",
-  "description": "Forum API",
+  "name": "proyek-2",
+  "version": "2.0.0",
+  "description": "Forum API CI/CD",
   "main": "index.js",
   "scripts": {
     "start": "node src/app.js",
