@@ -13,7 +13,7 @@ describe('GET /hello endpoint', () => {
     const responseJson = JSON.parse(response.payload);
     expect(response.statusCode).toEqual(200);
     expect(responseJson.status).toEqual('success');
-    expect(responseJson.message).toEqual('Hello stranger');
+    expect(responseJson.message).toEqual('Hello, stranger');
   });
   
   it('should respond with 200 and "Hello, ${name}" when name is provided', async () => {
